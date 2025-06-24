@@ -85,6 +85,32 @@ def search_top_k_products(keywords, model, faiss_index, df_catalog, top_k=5):
 # Main entry point
 # -------------------------------
 
+
+def select_catalogue_items(trend: str):
+    # Load embedding model
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+
+    # Load catalog and precomputed embeddings
+    df_catalog = pd.read_csv('df_with_embeddings.csv')
+    catalog_embeddings = np.load('ML/product_embeddings.npy')
+
+    # Build FAISS index
+    index = build_faiss_index(catalog_embeddings)
+
+    # Query LLM for keywords
+    keywords = query_ollama(trend)  # already returns a list
+
+    # Search for products
+    search_results = search_top_k_products(keywords, model, index, df_catalog)
+
+    # Package results
+    return {
+        "trend": trend,
+        "keywords": keywords,
+        "results": search_results
+    }
+
+
 def main():
     # Load embedding model
     model = SentenceTransformer('all-MiniLM-L6-v2')
