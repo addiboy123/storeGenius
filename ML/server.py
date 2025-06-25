@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from storegenius_pipeline import select_catalogue_items
+from util import select_catalogue_items
 
 app = Flask(__name__)
 
