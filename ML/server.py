@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from util import select_catalogue_items
+from user_prompt_search import search_by_user_prompt
 
 app = Flask(__name__)
 
@@ -8,13 +9,22 @@ def suggest_items():
     trend = request.args.get('trend')
     if not trend:
         return jsonify({"error": "Missing 'trend' query parameter"}), 400
-
     try:
         result = select_catalogue_items(trend)
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/search', methods=['GET'])
+def search_items():
+    prompt = request.args.get('prompt')
+    if not prompt:
+        return jsonify({"error": "Missing 'prompt' query parameter"}), 400
+    try:
+        result = search_by_user_prompt(prompt)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=11212, debug=True)
+    app.run(host='0.0.0.0', port=5050, debug=True)

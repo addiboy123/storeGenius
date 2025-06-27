@@ -52,6 +52,7 @@ def query_ollama(prompt, model="storeGeniusLLM"):
             if 1 < len(line.strip()) < 60 and "product" not in line.lower()
         ]
         keywords = keywords[-5:]
+        print(keywords)
 
     return keywords[:5]
 
@@ -77,7 +78,7 @@ def search_top_k_products(keywords, model, faiss_index, df_catalog, top_k=5):
     for keyword, emb in zip(keywords, keyword_embeddings):
         D, I = faiss_index.search(np.array([emb]), top_k)
         matched = df_catalog.iloc[I[0]]
-        results[keyword] = matched[['product_name', 'short_description']].to_dict('records')
+        results[keyword] = matched[['product_name']].to_dict('records')
     return results
 
 
