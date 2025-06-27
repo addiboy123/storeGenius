@@ -5,7 +5,7 @@ import faiss
 import requests
 import re
 from tqdm import tqdm
-
+import os
 
 # -------------------------------
 # Load catalog and build index
@@ -28,11 +28,15 @@ def build_faiss_index(embeddings):
 import requests
 import re
 
+
+OLLAMA_URL = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
+
 def query_ollama(prompt, model="storeGeniusLLM"):
     print("Querying LLM for product keywords...")
     
     response = requests.post(
-        "http://localhost:11434/api/generate",
+        f"{OLLAMA_URL}/api/generate",
         json={"model": model, "prompt": prompt, "stream": False}
     )
     
