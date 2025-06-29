@@ -71,7 +71,7 @@ export const getEnrichedTrendingProducts = async (req, res) => {
     const productTitles = await extractTrendingCompanyNames();
     console.log("📦 Trending Companies:", productTitles);
 
-    const flaskResponse = await axios.get("http://localhost:5050/suggest", {
+    const flaskResponse = await axios.get(`${process.env(API_URL)}/suggest`, {
       params: { trend: productTitles },
       paramsSerializer: {
         serialize: params =>
@@ -125,7 +125,7 @@ export const suggestItems = async (req, res) => {
   }
 
   try {
-    const response = await axios.get("http://127.0.0.1:5050/search", {
+    const response = await axios.get(`${process.env(API_URL)}/search`, {
       params: { prompt }
     });
 
