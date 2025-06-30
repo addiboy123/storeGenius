@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 5050
 
-CMD ["python", "storegenius_server.py"]
+CMD ["python", "server.py"]

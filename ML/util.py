@@ -97,7 +97,7 @@ def select_catalogue_items(trend: str):
 
     # Load catalog and precomputed embeddings
     df_catalog = pd.read_csv('df_with_embeddings.csv')
-    catalog_embeddings = np.load('ML/product_embeddings.npy')
+    catalog_embeddings = np.load('product_embeddings.npy')
 
     # Build FAISS index
     index = build_faiss_index(catalog_embeddings)
@@ -122,7 +122,7 @@ def main():
 
     # Load catalog
     df_catalog = pd.read_csv('df_with_embeddings.csv')
-    catalog_embeddings = np.load('ML/product_embeddings.npy')
+    catalog_embeddings = np.load('product_embeddings.npy')
 
     # Build FAISS index
     index = build_faiss_index(catalog_embeddings)
