@@ -9,7 +9,7 @@ export default defineConfig({
   },
   server:{
     proxy:{
-      '/api': 'http://localhost:7000',
+      '/api':`${process.env.VITE_BACKEND_URL}`,
     }
   }
 });
