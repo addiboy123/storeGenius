@@ -10,7 +10,7 @@ const extractTrendingCompanyNames = async () => {
       google_domain: "google.co.in",
       gl: "in",
       hl: "en",
-      api_key: "6c9a293749ce36c4e8e20fd785a26ec9f771b926bdba0f7f8f79e435ae9ae880"
+      api_key: `${process.env.API_KEY}`
     }, (json) => {
       try {
         const rawTitles = json.shopping_results?.map(item => item.title) || [];
@@ -41,7 +41,7 @@ const getImageForProduct = async (productName, category = '') => {
       q: searchQuery,
       engine: "google_images",
       ijn: "0",
-      api_key: "6c9a293749ce36c4e8e20fd785a26ec9f771b926bdba0f7f8f79e435ae9ae880"
+      api_key: `${process.env.API_KEY}`
     }, (json) => {
       try {
         const results = json.images_results || [];

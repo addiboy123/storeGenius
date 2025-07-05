@@ -7,7 +7,7 @@ import re
 # Load once for reuse
 model = SentenceTransformer('all-MiniLM-L6-v2')
 df_catalog = pd.read_csv('df_with_embeddings.csv')
-catalog_embeddings = np.load('ML/product_embeddings.npy')
+catalog_embeddings = np.load('product_embeddings.npy')
 faiss_index = faiss.IndexFlatL2(catalog_embeddings.shape[1])
 faiss_index.add(catalog_embeddings)
 

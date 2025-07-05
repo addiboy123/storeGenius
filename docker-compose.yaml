@@ -4,12 +4,18 @@ services:
   ollama:
     image: ollama/ollama
     ports:
-      - "11434:11434"
+      - "11433:11434"  # Keep your custom external:internal port mapping
     volumes:
       - ollama-data:/root/.ollama
-      - ./Modelfile:/Modelfile  # Mount Modelfile into container
+      - ./Modelfile:/Modelfile
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434  # Make sure server listens on internal port
     entrypoint: >
-      sh -c "ollama create storeGeniusLLM -f /Modelfile && ollama serve"
+      sh -c "ollama serve & 
+             sleep 10 && 
+             [ -f /root/.ollama/models/blobs/manifest-storeGeniusLLM ] || 
+             (OLLAMA_HOST=http://localhost:11434 ollama create storeGeniusLLM -f /Modelfile) && 
+             wait"
     restart: unless-stopped
 
   storegenius-api:
@@ -27,7 +33,8 @@ services:
 
   frontend:
     build:
-      context: ./projectAPI_URL
+      context: ./project
+      dockerfile: Dockerfile
     ports:
       - "5173:5173"
     depends_on:
@@ -44,13 +51,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "7000:7000"
-    depends_on:
-      - storegenius-api
     environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - PORT=${PORT}
-      - MONGO_URI=${MONGO_URI}
-      - API_URL=http://storegenius-api:5050
+      SECRET_KEY: ${SECRET_KEY}
+      API_KEY: ${API_KEY}
+      PORT: ${PORT}
+      MONGO_URI: ${MONGO_URI}
+      API_URL: http://storegenius-api:5050
     restart: unless-stopped
 
 volumes:
