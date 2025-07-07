@@ -2,59 +2,86 @@ import { getJson } from "serpapi";
 import axios from "axios";
 
 // Step 1: Get trending product names (company-related) from Google Shopping
-const extractTrendingCompanyNames = async () => {
+const knownCompanies = [
+  "Apple", "Samsung", "Nike", "Sony", "Adidas", "HP", "Dell", "LG", "OnePlus",
+  "Xiaomi", "Puma", "Asus", "Lenovo", "Realme", "Canon", "Boat", "JBL",
+  "Microsoft", "Google", "Intel", "Panasonic", "Philips", "Nokia", "Toshiba",
+  "Motorola", "Mi", "Infinix", "Vivo", "Oppo", "Honor", "Amazon", "Facebook", "Tesla"
+];
+
+// ✅ Smart Query
+const query = "top smartphone brands 2025"; // you can rotate queries like fashion, electronics, etc.
+
+const extractTopTrendingCompany = async () => {
   return new Promise((resolve, reject) => {
     getJson({
       engine: "google_shopping",
-      q: "trending products",
+      q: query,
       google_domain: "google.co.in",
       gl: "in",
       hl: "en",
-      api_key: `${process.env.API_KEY}`
+      api_key: process.env.API_KEY
     }, (json) => {
       try {
-        const rawTitles = json.shopping_results?.map(item => item.title) || [];
-        
-        // Extract first word or brand-like term
-        const brands = rawTitles.map(title => {
-          const match = title.match(/^[A-Za-z0-9]+/);
-          return match ? match[0] : null;
-        }).filter(Boolean);
+        const titles = json.shopping_results?.map(item => item.title) || [];
 
-        // Deduplicate and return top N
-        const uniqueBrands = [...new Set(brands)].slice(0, 10);
+        console.log("📝 Titles Fetched:", titles.slice(0, 5));
 
-        resolve(uniqueBrands);
+        const freqMap = {};
+
+        titles.forEach(title => {
+          const words = title.split(/[\s\-:|]+/)
+            .map(w => w.replace(/[^\w]/g, '').trim())
+            .filter(w => w.length > 1);
+
+          words.forEach(word => {
+            const formatted = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            if (knownCompanies.includes(formatted)) {
+              freqMap[formatted] = (freqMap[formatted] || 0) + 1;
+            }
+          });
+        });
+
+        console.log("📊 Brand Frequencies:", freqMap);
+
+        const sorted = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
+        const topCompany = sorted[0]?.[0];
+
+        if (topCompany) {
+          console.log("🔥 Top Trend:", topCompany);
+          resolve(topCompany);
+        } else {
+          console.log("❌ No brand matched");
+          resolve(null);
+        }
+
       } catch (err) {
         reject(err);
       }
     });
   });
 };
-
-// Step 2: Get image from Google Images for a given product name
+// ✅ Step 2: Get image from Google Images
 const getImageForProduct = async (productName, category = '') => {
   const searchQuery = `${productName} ${category} product packaging`;
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     getJson({
-      q: searchQuery,
       engine: "google_images",
+      q: searchQuery,
       ijn: "0",
-      api_key: `${process.env.API_KEY}`
+      api_key: process.env.API_KEY
     }, (json) => {
       try {
         const results = json.images_results || [];
 
-        // Try to find an image with alt or source matching keywords
         const preferred = results.find(img =>
-          img.link?.includes(productName.toLowerCase()) ||
-          img.original?.includes(productName.toLowerCase()) ||
+          img.link?.toLowerCase().includes(productName.toLowerCase()) ||
+          img.original?.toLowerCase().includes(productName.toLowerCase()) ||
           img.title?.toLowerCase().includes(productName.toLowerCase())
         );
 
         const fallback = results[0];
-
         resolve((preferred || fallback)?.thumbnail || null);
       } catch (err) {
         console.error('Image fetch error:', err.message);
@@ -64,24 +91,18 @@ const getImageForProduct = async (productName, category = '') => {
   });
 };
 
-
-// ✅ Controller version (use in route)
+// ✅ Step 3: Main controller
 export const getEnrichedTrendingProducts = async (req, res) => {
   try {
-    const productTitles = await extractTrendingCompanyNames();
-    console.log("📦 Trending Companies:", productTitles);
+    const topTrend = await extractTopTrendingCompany();
+    console.log("🔥 Top Trend:", topTrend || "❌ No brand matched");
+
+    if (!topTrend) {
+      return res.status(404).json({ success: false, message: "No top brand found." });
+    }
 
     const flaskResponse = await axios.get(`${process.env.API_URL}/suggest`, {
-      params: { trend: productTitles },
-      paramsSerializer: {
-        serialize: params =>
-          Object.entries(params)
-            .map(([key, val]) =>
-              Array.isArray(val)
-                ? val.map(v => `${encodeURIComponent(key)}=${encodeURIComponent(v)}`).join("&")
-                : `${encodeURIComponent(key)}=${encodeURIComponent(val)}`
-            ).join("&")
-      }
+      params: { trend: topTrend }
     });
 
     const { keywords, results } = flaskResponse.data;
@@ -99,7 +120,6 @@ export const getEnrichedTrendingProducts = async (req, res) => {
             };
           })
         );
-        
 
         return {
           category,
@@ -110,7 +130,7 @@ export const getEnrichedTrendingProducts = async (req, res) => {
 
     return res.status(200).json({ success: true, data: enriched });
   } catch (err) {
-    console.error("❌ Error in pipeline:", err.message);
+    console.error("❌ Error in trend pipeline:", err.message);
     return res.status(500).json({ success: false, error: err.message });
   }
 };
