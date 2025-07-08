@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-import { Search, User, Trash2, Leaf, Droplets, TreePine } from 'lucide-react';
+import { Search, User, Trash2, Leaf, Droplets, TreePine , LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { GoogleGenAI } from '@google/genai';
 
@@ -65,7 +65,7 @@ Only respond with valid JSON. Do not include markdown or explanations.
 };
 
 const SmartBasket: React.FC = () => {
-  const { user } = useAuth();
+  const { user,logout } = useAuth();
   const [budget, setBudget] = useState<number>(500);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -250,7 +250,16 @@ const SmartBasket: React.FC = () => {
               <User className="text-green-500" size={24} />
               <h2 className="text-xl font-semibold">Profile</h2>
             </div>
+            <div className='flex justify-between'>
+
             <p><span className="font-semibold">Name:</span> {user?.fullName || 'Guest'}</p>
+            <button
+                        onClick={logout}
+                        className="flex items-center text-sm px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                      >
+                        <LogOut size={16} className="mr-1" /> Logout
+                      </button>
+            </div>
             <p><span className="font-semibold">Budget:</span> ₹{budget}</p>
             <div className="mt-6 border-t pt-4">
               <h3 className="text-lg font-bold mb-2">🧺 Basket Summary</h3>

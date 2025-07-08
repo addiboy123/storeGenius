@@ -1,16 +1,15 @@
 import { getJson } from "serpapi";
 import axios from "axios";
 
-// Step 1: Get trending product names (company-related) from Google Shopping
 const knownCompanies = [
-  "Apple", "Samsung", "Nike", "Sony", "Adidas", "HP", "Dell", "LG", "OnePlus",
-  "Xiaomi", "Puma", "Asus", "Lenovo", "Realme", "Canon", "Boat", "JBL",
-  "Microsoft", "Google", "Intel", "Panasonic", "Philips", "Nokia", "Toshiba",
-  "Motorola", "Mi", "Infinix", "Vivo", "Oppo", "Honor", "Amazon", "Facebook", "Tesla"
+  "Nike", "Adidas", "Puma", "Levis", "Allen Solly", "Biba", "UCB", "Van Heusen",
+  "Zara", "H&M", "Crocs", "Wrangler", "Pepe", "Tommy Hilfiger", "Jack & Jones",
+  "Roadster", "Max", "Pantaloons", "FabIndia", "Manyavar", "RayBan", "Titan",
+  "Fastrack", "Campus", "HRX", "Flying Machine", "Peter England", "Killer",
+  "Red Tape", "Woodland", "Sparx", "Action", "Clarks", "Metro", "Bata"
 ];
 
-// ✅ Smart Query
-const query = "top smartphone brands 2025"; // you can rotate queries like fashion, electronics, etc.
+const query = "popular fashion brands Walmart India 2025";
 
 const extractTopTrendingCompany = async () => {
   return new Promise((resolve, reject) => {
@@ -48,7 +47,7 @@ const extractTopTrendingCompany = async () => {
         const topCompany = sorted[0]?.[0];
 
         if (topCompany) {
-          console.log("🔥 Top Trend:", topCompany);
+          console.log("🔥 Top Walmart Trend:", topCompany);
           resolve(topCompany);
         } else {
           console.log("❌ No brand matched");
