@@ -41,8 +41,9 @@ services:
       - backend
       - storegenius-api
     environment:
-      - VITE_BACKEND_URL=http://backend:7000
-      - VITE_API_URL=http://storegenius-api:5050
+      VITE_BACKEND_URL: http://backend:7000
+      VITE_API_URL: http://storegenius-api:5050
+      VITE_GEMINI_API: ${VITE_GEMINI_API}
     restart: unless-stopped
 
   backend:
